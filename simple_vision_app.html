@@ -1,0 +1,955 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👁️ VisionSimulator - Simulador Visual Interativo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .controls {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        .control-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4facfe;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4facfe;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .preset-buttons {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .preset-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .preset-btn.sem-oculos {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .preset-btn.com-oculos {
+            background: #ffa726;
+            color: white;
+        }
+        
+        .preset-btn.perfeito {
+            background: #66bb6a;
+            color: white;
+        }
+        
+        .preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .visualization {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .canvas-container {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        #visionCanvas {
+            width: 100%;
+            height: 300px;
+            display: block;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .download-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: transform 0.3s;
+        }
+        
+        .download-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .controls {
+                padding: 20px;
+            }
+            
+            .visualization {
+                padding: 15px;
+            }
+            
+            #visionCanvas {
+                height: 200px;
+            }
+            
+            .preset-buttons {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .preset-btn {
+                padding: 15px;
+                font-size: 14px;
+            }
+            
+            .download-btn {
+                padding: 18px;
+                font-size: 16px;
+            }
+            
+            .control-group {
+                margin-bottom: 20px;
+            }
+            
+            .control-group label {
+                font-size: 14px;
+            }
+            
+            #textInput {
+                font-size: 16px; /* Evita zoom no iOS */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .main-content {
+                padding: 15px;
+                gap: 15px;
+            }
+            
+            .controls {
+                padding: 15px;
+            }
+            
+            .visualization {
+                padding: 10px;
+            }
+            
+            #visionCanvas {
+                height: 180px;
+            }
+            
+            .preset-btn {
+                padding: 12px;
+                font-size: 13px;
+            }
+            
+            .download-btn {
+                padding: 15px;
+                font-size: 15px;
+            }
+            
+            .info-box {
+                padding: 12px;
+                font-size: 13px;
+            }
+            
+            .footer {
+                padding: 15px;
+                font-size: 12px;
+            }
+        }
+        
+        /* Melhorias específicas para mobile */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .controls {
+                padding: 20px;
+            }
+            
+            .visualization {
+                padding: 15px;
+            }
+            
+            #visionCanvas {
+                height: 250px; /* Aumentado para mobile */
+                min-height: 200px;
+            }
+            
+            .preset-buttons {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px; /* Mais espaçamento */
+            }
+            
+            .preset-btn {
+                padding: 18px; /* Botões maiores */
+                font-size: 15px;
+                min-height: 50px; /* Altura mínima para touch */
+            }
+            
+            .download-btn {
+                padding: 20px; /* Botão maior */
+                font-size: 17px;
+                min-height: 55px;
+            }
+            
+            .control-group {
+                margin-bottom: 25px; /* Mais espaço entre controles */
+            }
+            
+            .control-group label {
+                font-size: 15px; /* Texto maior */
+                margin-bottom: 12px;
+            }
+            
+            /* Input texto maior para mobile */
+            #textInput {
+                font-size: 17px; /* Evita zoom no iOS */
+                padding: 15px;
+                min-height: 50px;
+            }
+            
+            .slider {
+                height: 12px; /* Sliders mais grossos */
+                margin: 15px 0; /* Mais espaço */
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .main-content {
+                padding: 15px;
+                gap: 15px;
+            }
+            
+            .controls {
+                padding: 15px;
+            }
+            
+            .visualization {
+                padding: 10px;
+            }
+            
+            #visionCanvas {
+                height: 220px; /* Altura boa para celular pequeno */
+                min-height: 180px;
+            }
+            
+            .preset-btn {
+                padding: 16px;
+                font-size: 14px;
+                min-height: 48px;
+            }
+            
+            .download-btn {
+                padding: 18px;
+                font-size: 16px;
+                min-height: 52px;
+            }
+            
+            .info-box {
+                padding: 15px;
+                font-size: 14px;
+            }
+            
+            .footer {
+                padding: 15px;
+                font-size: 13px;
+            }
+            
+            /* Texto do canvas maior para celulares pequenos */
+            .control-group:first-child input {
+                font-size: 18px;
+            }
+        }
+        
+        /* Para telas muito pequenas */
+        @media (max-width: 320px) {
+            .header h1 {
+                font-size: 1.6em;
+            }
+            
+            .header p {
+                font-size: 0.9em;
+            }
+            
+            #visionCanvas {
+                height: 180px;
+                min-height: 150px;
+            }
+            
+            .preset-btn {
+                padding: 14px;
+                font-size: 13px;
+                min-height: 45px;
+            }
+        }
+        
+        /* Melhorias para touch devices */
+        .slider {
+            height: 10px;
+            cursor: pointer;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            width: 28px; /* Thumb maior para mobile */
+            height: 28px;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+        }
+        
+        /* Evita zoom em inputs no iOS */
+        input[type="text"], input[type="range"] {
+            font-size: 16px;
+            -webkit-appearance: none;
+        }
+        
+        /* Melhora usabilidade em touch */
+        .preset-btn, .download-btn {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+        }
+        
+        /* Garante que botões sejam tocáveis */
+        button, input[type="range"] {
+            min-height: 44px; /* Padrão iOS para touch targets */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👁️ VisionSimulator</h1>
+            <p>Simule condições visuais para explicar como você enxerga</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="controls">
+                <h3 style="margin-bottom: 20px; color: #333;">🎛️ Controles</h3>
+                
+                <div class="control-group">
+                    <label for="textInput">Texto para testar:</label>
+                    <input type="text" id="textInput" value="TESTE DE VISÃO" 
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                
+                <div class="control-group">
+                    <label for="fontSize">Tamanho do texto: <span id="fontSizeValue">60</span>px</label>
+                    <input type="range" id="fontSize" class="slider" min="20" max="100" value="60">
+                </div>
+                
+                <div class="control-group">
+                    <label for="shadowHeight">Altura da sombra: <span id="shadowHeightValue">22</span>px</label>
+                    <input type="range" id="shadowHeight" class="slider" min="0" max="60" value="22">
+                </div>
+                
+                <div class="control-group">
+                    <label for="shadowCrop">Tamanho da sombra: <span id="shadowCropValue">100</span>%</label>
+                    <input type="range" id="shadowCrop" class="slider" min="10" max="100" value="100">
+                    <small style="color: #666; font-size: 12px;">Controla se aparece palavra inteira ou só parte superior</small>
+                </div>
+                
+                <div class="control-group">
+                    <label for="shadowOpacity">Intensidade da sombra: <span id="shadowOpacityValue">8</span>%</label>
+                    <input type="range" id="shadowOpacity" class="slider" min="0" max="50" value="8">
+                </div>
+                
+                <div class="control-group">
+                    <label for="blur">Desfoque: <span id="blurValue">1.5</span>px</label>
+                    <input type="range" id="blur" class="slider" min="0" max="10" value="15" step="1">
+                </div>
+                
+                <div class="control-group">
+                    <label>
+                        <input type="checkbox" id="showShadow" checked style="margin-right: 8px;">
+                        Mostrar sombra/diplopia
+                    </label>
+                </div>
+                
+                <div class="preset-buttons">
+                    <h4 style="margin-bottom: 10px;">📋 Condições Visuais:</h4>
+                    <button class="preset-btn sem-oculos" onclick="applyDiplopiaVertical()">
+                        Diplopia Vertical (Astigmatismo Irregular)
+                    </button>
+                    <button class="preset-btn com-oculos" onclick="applyCorrecaoParcial()">
+                        Correção Parcial com Óculos
+                    </button>
+                    <button class="preset-btn" style="background: #42a5f5; color: white;" onclick="applyMiopiaBasica()">
+                        Miopia Básica (Desfoque Geral)
+                    </button>
+                    <button class="preset-btn perfeito" onclick="applyVisaoPerfeita()">
+                        Visão Normal (Referência)
+                    </button>
+                </div>
+            </div>
+            
+            <div class="visualization">
+                <h3 style="margin-bottom: 15px; color: #333;">👁️ Simulação Visual</h3>
+                <div class="canvas-container">
+                    <canvas id="visionCanvas" width="600" height="300"></canvas>
+                </div>
+                
+                <div class="info-box">
+                    <strong>📋 Como usar:</strong><br>
+                    1. Ajuste os controles até ficar igual à sua visão<br>
+                    2. Use as configurações pré-definidas como base<br>
+                    3. Baixe a imagem para mostrar ao médico
+                </div>
+                
+                <button class="download-btn" onclick="downloadImage()">
+                    📸 Baixar Simulação
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>🎯 <strong>VisionSimulator</strong> - Ajudando pessoas a explicar sua visão</p>
+            <p>⚠️ Esta ferramenta é apenas educativa. Consulte sempre um oftalmologista.</p>
+            <p>🔗 <a href="https://github.com/seu-usuario/vision-simulator" target="_blank">GitHub</a></p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('visionCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Elementos de controle
+        const textInput = document.getElementById('textInput');
+        const fontSize = document.getElementById('fontSize');
+        const shadowHeight = document.getElementById('shadowHeight');
+        const shadowCrop = document.getElementById('shadowCrop');
+        const shadowOpacity = document.getElementById('shadowOpacity');
+        const blur = document.getElementById('blur');
+        const showShadow = document.getElementById('showShadow');
+        
+        // Elementos de valor
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const shadowHeightValue = document.getElementById('shadowHeightValue');
+        const shadowCropValue = document.getElementById('shadowCropValue');
+        const shadowOpacityValue = document.getElementById('shadowOpacityValue');
+        const blurValue = document.getElementById('blurValue');
+        
+        // Atualiza valores em tempo real
+        fontSize.addEventListener('input', () => {
+            fontSizeValue.textContent = fontSize.value;
+            drawSimulation();
+        });
+        
+        shadowHeight.addEventListener('input', () => {
+            shadowHeightValue.textContent = shadowHeight.value;
+            drawSimulation();
+        });
+        
+        shadowCrop.addEventListener('input', () => {
+            shadowCropValue.textContent = shadowCrop.value;
+            drawSimulation();
+        });
+        
+        shadowOpacity.addEventListener('input', () => {
+            shadowOpacityValue.textContent = shadowOpacity.value;
+            drawSimulation();
+        });
+        
+        blur.addEventListener('input', () => {
+            blurValue.textContent = (blur.value / 10).toFixed(1);
+            drawSimulation();
+        });
+        
+        textInput.addEventListener('input', drawSimulation);
+        showShadow.addEventListener('change', drawSimulation);
+        
+        function setupHighDPICanvas() {
+            const container = canvas.parentElement;
+            const containerWidth = container.clientWidth - 4;
+            const dpr = window.devicePixelRatio || 1;
+            
+            // Calcula tamanho visual responsivo
+            const displayWidth = Math.min(600, containerWidth);
+            const displayHeight = Math.min(300, containerWidth * 0.5);
+            
+            // Define tamanho visual
+            canvas.style.width = displayWidth + 'px';
+            canvas.style.height = displayHeight + 'px';
+            
+            // Aumenta resolução real baseado no DPI
+            canvas.width = displayWidth * dpr;
+            canvas.height = displayHeight * dpr;
+            
+            // Escala o contexto para compensar
+            ctx.scale(dpr, dpr);
+            
+            // Ativa suavização máxima
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.textRenderingOptimization = 'optimizeQuality';
+            
+            return { width: displayWidth, height: displayHeight };
+        }
+
+        function drawSimulation() {
+            // Configura canvas high-DPI e pega dimensões
+            const { width, height } = setupHighDPICanvas();
+            
+            // Limpa canvas com anti-aliasing
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, width, height);
+            
+            const text = textInput.value || 'TESTE DE VISÃO';
+            const size = Math.min(parseInt(fontSize.value), width / 6);
+            const disp = parseInt(shadowHeight.value);
+            const crop = parseInt(shadowCrop.value) / 100; // Porcentagem de corte
+            const op = parseInt(shadowOpacity.value) / 100;
+            const blurAmount = parseInt(blur.value) / 10;
+            
+            // Centro ABSOLUTO da tela
+            const x = width / 2;
+            const y = height / 2;
+            
+            // Configuração de fonte profissional com centralização perfeita
+            ctx.font = `${size}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.textRenderingOptimization = 'optimizeQuality';
+            
+            // Desenha sombra cortada se ativada
+            if (showShadow.checked && disp > 0 && op > 0) {
+                ctx.save();
+                
+                // Cria gradiente para sombra mais realista
+                const gradient = ctx.createLinearGradient(x, y - disp - 10, x, y - disp + 10);
+                gradient.addColorStop(0, `rgba(0, 0, 0, ${op * 0.7})`);
+                gradient.addColorStop(0.5, `rgba(0, 0, 0, ${op})`);
+                gradient.addColorStop(1, `rgba(0, 0, 0, ${op * 0.7})`);
+                
+                // Aplica blur gaussiano real para sombra
+                if (blurAmount > 0) {
+                    ctx.filter = `blur(${blurAmount * 0.8}px)`;
+                }
+                
+                ctx.fillStyle = gradient;
+                
+                // NOVA FUNCIONALIDADE: Corta a sombra conforme o valor do slider
+                if (crop < 1) {
+                    // Cria máscara para cortar a sombra (mantém parte SUPERIOR)
+                    ctx.save();
+                    
+                    // Desenha a palavra completa em canvas temporário
+                    const tempCanvas = document.createElement('canvas');
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCanvas.width = width;
+                    tempCanvas.height = height;
+                    
+                    tempCtx.font = ctx.font;
+                    tempCtx.textAlign = 'center';
+                    tempCtx.textBaseline = 'middle';
+                    tempCtx.textRenderingOptimization = 'optimizeQuality';
+                    tempCtx.fillStyle = gradient;
+                    if (blurAmount > 0) {
+                        tempCtx.filter = `blur(${blurAmount * 0.8}px)`;
+                    }
+                    tempCtx.fillText(text, x, y - disp);
+                    
+                    // Calcula altura do corte - CORRIGIDO para manter parte superior
+                    const textHeight = size * 1.2;
+                    const cropHeight = textHeight * crop;
+                    const startY = y - disp - textHeight/2; // Topo do texto
+                    
+                    // Desenha só a parte SUPERIOR (corta de baixo)
+                    ctx.drawImage(tempCanvas, 
+                        0, startY, width, cropHeight, // fonte: do topo até altura do corte
+                        0, startY, width, cropHeight  // destino: mesma posição
+                    );
+                    
+                    ctx.restore();
+                } else {
+                    // Desenha sombra completa
+                    ctx.fillText(text, x, y - disp);
+                }
+                
+                ctx.restore();
+            }
+            
+            // Texto principal centralizado perfeitamente
+            ctx.save();
+            
+            // Garante centralização perfeita
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Aplica desfoque ao texto principal se necessário
+            if (blurAmount > 0) {
+                ctx.filter = `blur(${blurAmount}px)`;
+            }
+            
+            // Texto principal com sombra sutil para melhor legibilidade
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+            ctx.shadowBlur = 1;
+            ctx.shadowOffsetX = 0.5;
+            ctx.shadowOffsetY = 0.5;
+            
+            ctx.fillStyle = 'black';
+            ctx.fillText(text, x, y);
+            
+            ctx.restore();
+            
+            // Adiciona efeito de astigmatismo sutil se houver blur
+            if (blurAmount > 2) {
+                ctx.save();
+                ctx.globalAlpha = 0.3;
+                ctx.filter = `blur(${blurAmount * 0.5}px)`;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                
+                // Simula distorção direcional leve
+                ctx.setTransform(1.02, 0, 0.02, 1, x * 0.02, 0);
+                ctx.fillText(text, x, y);
+                
+                ctx.restore();
+            }
+        }
+        
+        // Configurações pré-definidas
+        function applyDiplopiaVertical() {
+            shadowHeight.value = 45;
+            shadowCrop.value = 100;
+            shadowOpacity.value = 45;
+            blur.value = 5;
+            showShadow.checked = true;
+            updateValues();
+            drawSimulation();
+        }
+        
+        function applyCorrecaoParcial() {
+            shadowHeight.value = 22;
+            shadowCrop.value = 50; // Só metade da sombra
+            shadowOpacity.value = 8;
+            blur.value = 15;
+            showShadow.checked = true;
+            updateValues();
+            drawSimulation();
+        }
+        
+        function applyMiopiaBasica() {
+            shadowHeight.value = 0;
+            shadowCrop.value = 100;
+            shadowOpacity.value = 0;
+            blur.value = 35;
+            showShadow.checked = false;
+            updateValues();
+            drawSimulation();
+        }
+        
+        function applyVisaoPerfeita() {
+            shadowHeight.value = 0;
+            shadowCrop.value = 100;
+            shadowOpacity.value = 0;
+            blur.value = 0;
+            showShadow.checked = false;
+            updateValues();
+            drawSimulation();
+        }
+        
+        function updateValues() {
+            fontSizeValue.textContent = fontSize.value;
+            shadowHeightValue.textContent = shadowHeight.value;
+            shadowCropValue.textContent = shadowCrop.value;
+            shadowOpacityValue.textContent = shadowOpacity.value;
+            blurValue.textContent = (blur.value / 10).toFixed(1);
+        }
+        
+        function downloadImage() {
+            try {
+                // Cria canvas em alta resolução para download
+                const downloadCanvas = document.createElement('canvas');
+                const downloadCtx = downloadCanvas.getContext('2d');
+                
+                // Resolução alta para impressão/médico (2x)
+                downloadCanvas.width = 1200;
+                downloadCanvas.height = 600;
+                
+                // Configura contexto de alta qualidade
+                downloadCtx.imageSmoothingEnabled = true;
+                downloadCtx.imageSmoothingQuality = 'high';
+                downloadCtx.textRenderingOptimization = 'optimizeQuality';
+                
+                // Recria a simulação em alta resolução
+                const text = textInput.value || 'TESTE DE VISÃO';
+                const size = parseInt(fontSize.value) * 2; // Dobra o tamanho para alta resolução
+                const disp = parseInt(displacement.value) * 2;
+                const op = parseInt(opacity.value) / 100;
+                const blurAmount = parseInt(blur.value) / 5; // Ajusta blur para alta res
+                
+                const x = downloadCanvas.width / 2;
+                const y = downloadCanvas.height / 2;
+                
+                // Fundo branco
+                downloadCtx.fillStyle = 'white';
+                downloadCtx.fillRect(0, 0, downloadCanvas.width, downloadCanvas.height);
+                
+                // Configura fonte de alta qualidade
+                downloadCtx.font = `${size}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+                downloadCtx.textAlign = 'center';
+                downloadCtx.textBaseline = 'middle';
+                
+                // Desenha sombra em alta resolução
+                if (showShadow.checked && disp > 0 && op > 0) {
+                    downloadCtx.save();
+                    
+                    const gradient = downloadCtx.createLinearGradient(x, y - disp - 20, x, y - disp + 20);
+                    gradient.addColorStop(0, `rgba(0, 0, 0, ${op * 0.7})`);
+                    gradient.addColorStop(0.5, `rgba(0, 0, 0, ${op})`);
+                    gradient.addColorStop(1, `rgba(0, 0, 0, ${op * 0.7})`);
+                    
+                    if (blurAmount > 0) {
+                        downloadCtx.filter = `blur(${blurAmount}px)`;
+                    }
+                    
+                    downloadCtx.fillStyle = gradient;
+                    downloadCtx.fillText(text, x, y - disp);
+                    downloadCtx.restore();
+                }
+                
+                // Desenha texto principal em alta resolução
+                downloadCtx.save();
+                
+                if (blurAmount > 0) {
+                    downloadCtx.filter = `blur(${blurAmount}px)`;
+                }
+                
+                downloadCtx.shadowColor = 'rgba(0, 0, 0, 0.1)';
+                downloadCtx.shadowBlur = 2;
+                downloadCtx.shadowOffsetX = 1;
+                downloadCtx.shadowOffsetY = 1;
+                
+                downloadCtx.fillStyle = 'black';
+                downloadCtx.fillText(text, x, y);
+                downloadCtx.restore();
+                
+                // Adiciona marca d'água discreta
+                downloadCtx.save();
+                downloadCtx.font = '16px Arial';
+                downloadCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                downloadCtx.fillText('VisionSimulator - Simulação Visual', downloadCanvas.width - 200, downloadCanvas.height - 20);
+                downloadCtx.restore();
+                
+                // Download da imagem em alta qualidade
+                const link = document.createElement('a');
+                link.download = 'visao-simulada-alta-qualidade.png';
+                
+                const dataURL = downloadCanvas.toDataURL('image/png', 1.0);
+                link.href = dataURL;
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                console.log('Download em alta resolução iniciado!');
+            } catch (error) {
+                console.error('Erro no download:', error);
+                
+                // Fallback - versão atual
+                const dataURL = canvas.toDataURL('image/png', 1.0);
+                const newWindow = window.open();
+                newWindow.document.write(`
+                    <html>
+                        <head><title>Minha Visão Simulada</title></head>
+                        <body style="margin:0; display:flex; justify-content:center; align-items:center; min-height:100vh; background:#f0f0f0;">
+                            <div style="text-align:center;">
+                                <h2>Clique com botão direito na imagem → "Salvar imagem como..."</h2>
+                                <img src="${dataURL}" style="border: 2px solid #333; border-radius: 8px;">
+                            </div>
+                        </body>
+                    </html>
+                `);
+            }
+        }
+        
+        // Desenha simulação inicial
+        drawSimulation();
+        
+        // Atualiza canvas quando a tela é redimensionada
+        window.addEventListener('resize', drawSimulation);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(drawSimulation, 100); // Pequeno delay para orientação mudar
+        });
+    </script>
+</body>
+</html>
